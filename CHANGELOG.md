@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/Cansiny0320/token-speed-tester/compare/v1.2.0...v1.2.1) (2026-01-08)
+
+
+### Bug Fixes
+
+* separate workflows for release and npm publishing ([9ee19e4](https://github.com/Cansiny0320/token-speed-tester/commit/9ee19e45440c1bd255ac56e1d56b37f242031838))
+
 # [1.2.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.1.1...v1.2.0) (2026-01-08)
 
 
