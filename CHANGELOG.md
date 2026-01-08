@@ -1,3 +1,9 @@
+# [1.6.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.5.0...v1.6.0) (2026-01-08)
+
+### Features
+
+- add i18n output language flag ([9319da9](https://github.com/Cansiny0320/token-speed-tester/commit/9319da92c3f2e0a000547935849e2bc5b5577764))
+
 # [1.5.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.4.2...v1.5.0) (2026-01-08)
 
 ### Bug Fixes
