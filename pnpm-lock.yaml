@@ -23,6 +23,9 @@ importers:
       openai:
         specifier: ^4.77.3
         version: 4.104.0
+      string-width:
+        specifier: ^7.2.0
+        version: 7.2.0
       tiktoken:
         specifier: ^1.0.22
         version: 1.0.22

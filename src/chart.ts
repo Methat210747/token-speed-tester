@@ -1,8 +1,28 @@
+import stringWidth from "string-width";
 import type { CalculatedMetrics, StatsResult } from "./metrics.js";
 
 const BLOCK_CHAR = "█";
 const CHART_WIDTH = 50;
 const CHART_HEIGHT = 10;
+const STAT_LABEL_WIDTH = 15;
+const STAT_VALUE_WIDTH = 10;
+const STAT_TABLE_WIDTH = 70;
+
+function padEndWidth(text: string, width: number): string {
+  const currentWidth = stringWidth(text);
+  if (currentWidth >= width) {
+    return text;
+  }
+  return text + " ".repeat(width - currentWidth);
+}
+
+function padStartWidth(text: string, width: number): string {
+  const currentWidth = stringWidth(text);
+  if (currentWidth >= width) {
+    return text;
+  }
+  return " ".repeat(width - currentWidth) + text;
+}
 
 /**
  * 渲染速度趋势图
@@ -121,23 +141,23 @@ export function renderStatsTable(stats: StatsResult): string {
   const lines: string[] = [];
   lines.push("");
   lines.push("统计汇总 (N=" + stats.sampleSize + ")");
-  lines.push("┌" + "─".repeat(70) + "┐");
+  lines.push("┌" + "─".repeat(STAT_TABLE_WIDTH) + "┐");
 
   // 表头
   lines.push(
     "│ " +
-      "指标".padEnd(15) +
+      padEndWidth("指标", STAT_LABEL_WIDTH) +
       " │ " +
-      "均值".padStart(10) +
+      padStartWidth("均值", STAT_VALUE_WIDTH) +
       " │ " +
-      "最小值".padStart(10) +
+      padStartWidth("最小值", STAT_VALUE_WIDTH) +
       " │ " +
-      "最大值".padStart(10) +
+      padStartWidth("最大值", STAT_VALUE_WIDTH) +
       " │ " +
-      "标准差".padStart(10) +
+      padStartWidth("标准差", STAT_VALUE_WIDTH) +
       " │"
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(STAT_TABLE_WIDTH) + "┤");
 
   // TTFT
   lines.push(
@@ -150,7 +170,7 @@ export function renderStatsTable(stats: StatsResult): string {
       "f"
     )
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(STAT_TABLE_WIDTH) + "┤");
 
   // 总耗时
   lines.push(
@@ -163,7 +183,7 @@ export function renderStatsTable(stats: StatsResult): string {
       "f"
     )
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(STAT_TABLE_WIDTH) + "┤");
 
   // 总 token 数
   lines.push(
@@ -176,7 +196,7 @@ export function renderStatsTable(stats: StatsResult): string {
       "f"
     )
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(STAT_TABLE_WIDTH) + "┤");
 
   // 平均速度
   lines.push(
@@ -189,7 +209,7 @@ export function renderStatsTable(stats: StatsResult): string {
       "f"
     )
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(STAT_TABLE_WIDTH) + "┤");
 
   // 峰值速度
   lines.push(
@@ -203,7 +223,7 @@ export function renderStatsTable(stats: StatsResult): string {
     )
   );
 
-  lines.push("└" + "─".repeat(70) + "┘");
+  lines.push("└" + "─".repeat(STAT_TABLE_WIDTH) + "┘");
 
   return lines.join("\n");
 }
@@ -223,15 +243,15 @@ function formatStatRow(
 
   return (
     "│ " +
-    label.padEnd(15) +
+    padEndWidth(label, STAT_LABEL_WIDTH) +
     " │ " +
-    fmt(mean).padStart(10) +
+    padStartWidth(fmt(mean), STAT_VALUE_WIDTH) +
     " │ " +
-    fmt(min).padStart(10) +
+    padStartWidth(fmt(min), STAT_VALUE_WIDTH) +
     " │ " +
-    fmt(max).padStart(10) +
+    padStartWidth(fmt(max), STAT_VALUE_WIDTH) +
     " │ " +
-    fmt(stdDev).padStart(10) +
+    padStartWidth(fmt(stdDev), STAT_VALUE_WIDTH) +
     " │"
   );
 }
