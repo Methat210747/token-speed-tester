@@ -73,12 +73,29 @@ jobs:
         env:
           NPM_CONFIG_PROVENANCE: true
 
+      - name: Extract changelog for this version
+        if: steps.new-version.outputs.version != 'none' && steps.new-version.outputs.version != steps.npm-version.outputs.version
+        id: changelog
+        run: |
+          VERSION="${{ steps.new-version.outputs.version }}"
+          # Extract content from CHANGELOG.md between this version and the next version header
+          # Using awk to find the version section
+          awk "
+            /^##?\s+\[$VERSION/ { in_section=1; next }
+            in_section && /^##?\s+\[/ { exit }
+            in_section { print }
+          " CHANGELOG.md > release_notes.md
+          # If file is empty, use default message
+          if [ ! -s release_notes.md ]; then
+            echo "See [Full Changelog](https://github.com/Cansiny0320/token-speed-tester/compare/v\${VERSION}...v\${VERSION})" > release_notes.md
+          fi
+
       - name: Create GitHub Release
         if: steps.new-version.outputs.version != 'none' && steps.new-version.outputs.version != steps.npm-version.outputs.version
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.new-version.outputs.version }}
-          generate_release_notes: true
+          body_path: release_notes.md
           draft: false
           prerelease: false
         env:
