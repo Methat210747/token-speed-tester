@@ -13,7 +13,6 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
   const tokenTimes: number[] = [];
   let ttft = 0;
   let firstTokenRecorded = false;
-  let fullText = "";
   let tokenCount = 0;
   let wroteOutput = false;
 
@@ -40,9 +39,8 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
         if (text && text.length > 0) {
           process.stdout.write(text);
           wroteOutput = true;
-          fullText += text;
-          const encoded = encoding.encode(fullText);
-          const newTokens = encoded.length - tokenCount;
+          const encoded = encoding.encode(text);
+          const newTokens = encoded.length;
 
           if (newTokens > 0) {
             if (!firstTokenRecorded) {
@@ -55,7 +53,7 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
               tokenTimes.push(currentTime - startTime);
             }
 
-            tokenCount = encoded.length;
+            tokenCount += newTokens;
           }
         }
       }
@@ -91,7 +89,6 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
   const tokenTimes: number[] = [];
   let ttft = 0;
   let firstTokenRecorded = false;
-  let fullText = "";
   let tokenCount = 0;
   let wroteOutput = false;
 
@@ -120,9 +117,8 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
         if (content.length > 0) {
           process.stdout.write(content);
           wroteOutput = true;
-          fullText += content;
-          const encoded = encoding.encode(fullText);
-          const newTokens = encoded.length - tokenCount;
+          const encoded = encoding.encode(content);
+          const newTokens = encoded.length;
 
           if (newTokens > 0) {
             if (!firstTokenRecorded) {
@@ -135,7 +131,7 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
               tokenTimes.push(currentTime - startTime);
             }
 
-            tokenCount = encoded.length;
+            tokenCount += newTokens;
           }
         }
       }

@@ -61,7 +61,8 @@ export function calculatePeakSpeed(metrics: StreamMetrics, windowSize: number = 
       return 0;
     }
     const totalTime = metrics.tokens[metrics.tokens.length - 1] - metrics.tokens[0];
-    return totalTime >= MIN_PEAK_WINDOW_MS ? ((metrics.tokens.length - 1) / totalTime) * 1000 : 0;
+    const durationMs = Math.max(totalTime, MIN_PEAK_WINDOW_MS);
+    return ((metrics.tokens.length - 1) / durationMs) * 1000;
   }
 
   let maxSpeed = 0;
@@ -69,10 +70,9 @@ export function calculatePeakSpeed(metrics: StreamMetrics, windowSize: number = 
     const startTime = metrics.tokens[i];
     const endTime = metrics.tokens[i + windowSize - 1];
     const duration = endTime - startTime;
-    if (duration >= MIN_PEAK_WINDOW_MS) {
-      const speed = ((windowSize - 1) / duration) * 1000;
-      maxSpeed = Math.max(maxSpeed, speed);
-    }
+    const durationMs = Math.max(duration, MIN_PEAK_WINDOW_MS);
+    const speed = ((windowSize - 1) / durationMs) * 1000;
+    maxSpeed = Math.max(maxSpeed, speed);
   }
 
   return maxSpeed;
