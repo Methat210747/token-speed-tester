@@ -137,7 +137,7 @@ describe("config", () => {
           apiKey: VALID_API_KEY,
           maxTokens: -100,
         })
-      ).toThrow("Invalid max-tokens: -100. Must be a positive number.");
+      ).toThrow("Invalid max-tokens: -100. Must be a positive integer.");
     });
 
     it("should throw error for zero maxTokens", () => {
@@ -146,7 +146,25 @@ describe("config", () => {
           apiKey: VALID_API_KEY,
           maxTokens: 0,
         })
-      ).toThrow("Invalid max-tokens: 0. Must be a positive number.");
+      ).toThrow("Invalid max-tokens: 0. Must be a positive integer.");
+    });
+
+    it("should throw error for non-integer maxTokens", () => {
+      expect(() =>
+        parseConfig({
+          apiKey: VALID_API_KEY,
+          maxTokens: 1.5,
+        })
+      ).toThrow("Invalid max-tokens: 1.5. Must be a positive integer.");
+    });
+
+    it("should throw error for NaN maxTokens", () => {
+      expect(() =>
+        parseConfig({
+          apiKey: VALID_API_KEY,
+          maxTokens: Number.NaN,
+        })
+      ).toThrow("Invalid max-tokens: NaN. Must be a positive integer.");
     });
 
     it("should throw error for negative runs", () => {
@@ -155,7 +173,7 @@ describe("config", () => {
           apiKey: VALID_API_KEY,
           runs: -1,
         })
-      ).toThrow("Invalid runs: -1. Must be a positive number.");
+      ).toThrow("Invalid runs: -1. Must be a positive integer.");
     });
 
     it("should throw error for zero runs", () => {
@@ -164,7 +182,25 @@ describe("config", () => {
           apiKey: VALID_API_KEY,
           runs: 0,
         })
-      ).toThrow("Invalid runs: 0. Must be a positive number.");
+      ).toThrow("Invalid runs: 0. Must be a positive integer.");
+    });
+
+    it("should throw error for non-integer runs", () => {
+      expect(() =>
+        parseConfig({
+          apiKey: VALID_API_KEY,
+          runs: 2.5,
+        })
+      ).toThrow("Invalid runs: 2.5. Must be a positive integer.");
+    });
+
+    it("should throw error for NaN runs", () => {
+      expect(() =>
+        parseConfig({
+          apiKey: VALID_API_KEY,
+          runs: Number.NaN,
+        })
+      ).toThrow("Invalid runs: NaN. Must be a positive integer.");
     });
 
     it("should parse complete config with all options", () => {
@@ -189,26 +225,22 @@ describe("config", () => {
       });
     });
 
-    it("should handle string number values for maxTokens", () => {
-      const result = parseConfig({
-        apiKey: VALID_API_KEY,
-        maxTokens: "2048" as unknown as number,
-      });
-
-      // When string is passed (via type casting), it's stored as-is
-      // In real usage, commander parses CLI args to numbers
-      expect(result.maxTokens).toBe("2048");
+    it("should reject string maxTokens values when cast unsafely", () => {
+      expect(() =>
+        parseConfig({
+          apiKey: VALID_API_KEY,
+          maxTokens: "2048" as unknown as number,
+        })
+      ).toThrow("Invalid max-tokens: 2048. Must be a positive integer.");
     });
 
-    it("should handle string number values for runs", () => {
-      const result = parseConfig({
-        apiKey: VALID_API_KEY,
-        runs: "5" as unknown as number,
-      });
-
-      // When string is passed (via type casting), it's stored as-is
-      // Config uses runCount property, not runs
-      expect(result.runCount).toBe("5");
+    it("should reject string runs values when cast unsafely", () => {
+      expect(() =>
+        parseConfig({
+          apiKey: VALID_API_KEY,
+          runs: "5" as unknown as number,
+        })
+      ).toThrow("Invalid runs: 5. Must be a positive integer.");
     });
   });
 
@@ -262,7 +294,7 @@ describe("config", () => {
         maxTokens: -1,
       });
       expect(result.valid).toBe(false);
-      expect(result.error).toBe("maxTokens must be positive");
+      expect(result.error).toBe("maxTokens must be a positive integer");
     });
 
     it("should reject config with zero maxTokens", () => {
@@ -271,7 +303,25 @@ describe("config", () => {
         maxTokens: 0,
       });
       expect(result.valid).toBe(false);
-      expect(result.error).toBe("maxTokens must be positive");
+      expect(result.error).toBe("maxTokens must be a positive integer");
+    });
+
+    it("should reject config with non-integer maxTokens", () => {
+      const result = validateConfig({
+        ...validConfig,
+        maxTokens: 1.1,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("maxTokens must be a positive integer");
+    });
+
+    it("should reject config with NaN maxTokens", () => {
+      const result = validateConfig({
+        ...validConfig,
+        maxTokens: Number.NaN,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("maxTokens must be a positive integer");
     });
 
     it("should reject config with negative runCount", () => {
@@ -280,7 +330,7 @@ describe("config", () => {
         runCount: -1,
       });
       expect(result.valid).toBe(false);
-      expect(result.error).toBe("runCount must be positive");
+      expect(result.error).toBe("runCount must be a positive integer");
     });
 
     it("should reject config with zero runCount", () => {
@@ -289,7 +339,25 @@ describe("config", () => {
         runCount: 0,
       });
       expect(result.valid).toBe(false);
-      expect(result.error).toBe("runCount must be positive");
+      expect(result.error).toBe("runCount must be a positive integer");
+    });
+
+    it("should reject config with non-integer runCount", () => {
+      const result = validateConfig({
+        ...validConfig,
+        runCount: 2.2,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("runCount must be a positive integer");
+    });
+
+    it("should reject config with NaN runCount", () => {
+      const result = validateConfig({
+        ...validConfig,
+        runCount: Number.NaN,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("runCount must be a positive integer");
     });
 
     it("should reject config with empty prompt", () => {

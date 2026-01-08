@@ -54,12 +54,12 @@ export function parseConfig(args: ParsedArgs): Config {
   }
 
   // 验证数值参数
-  if (maxTokens <= 0) {
-    throw new Error(`Invalid max-tokens: ${maxTokens}. Must be a positive number.`);
+  if (!Number.isFinite(maxTokens) || !Number.isInteger(maxTokens) || maxTokens <= 0) {
+    throw new Error(`Invalid max-tokens: ${maxTokens}. Must be a positive integer.`);
   }
 
-  if (runs <= 0) {
-    throw new Error(`Invalid runs: ${runs}. Must be a positive number.`);
+  if (!Number.isFinite(runs) || !Number.isInteger(runs) || runs <= 0) {
+    throw new Error(`Invalid runs: ${runs}. Must be a positive integer.`);
   }
 
   // 使用默认模型或用户指定的模型
@@ -95,12 +95,20 @@ export function validateConfig(config: Config): { valid: boolean; error?: string
     return { valid: false, error: `Invalid provider: ${config.provider}` };
   }
 
-  if (config.maxTokens <= 0) {
-    return { valid: false, error: "maxTokens must be positive" };
+  if (
+    !Number.isFinite(config.maxTokens) ||
+    !Number.isInteger(config.maxTokens) ||
+    config.maxTokens <= 0
+  ) {
+    return { valid: false, error: "maxTokens must be a positive integer" };
   }
 
-  if (config.runCount <= 0) {
-    return { valid: false, error: "runCount must be positive" };
+  if (
+    !Number.isFinite(config.runCount) ||
+    !Number.isInteger(config.runCount) ||
+    config.runCount <= 0
+  ) {
+    return { valid: false, error: "runCount must be a positive integer" };
   }
 
   if (!config.prompt || config.prompt.trim() === "") {
