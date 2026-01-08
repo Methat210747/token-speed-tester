@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.3.0...v1.4.0) (2026-01-08)
+
+
+### Features
+
+* update default models to latest versions ([de40702](https://github.com/Cansiny0320/token-speed-tester/commit/de40702e5b78deb7180ecfd29a5483ca57974b06))
+
 # [1.3.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.2.2...v1.3.0) (2026-01-08)
 
 
