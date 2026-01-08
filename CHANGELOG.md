@@ -1,3 +1,18 @@
+# [1.5.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.4.2...v1.5.0) (2026-01-08)
+
+### Bug Fixes
+
+- align table layout with string width ([ebfef4d](https://github.com/Cansiny0320/token-speed-tester/commit/ebfef4dac7a543715d3daeb993df25906d84f40a))
+- improve token timing accuracy ([02524bd](https://github.com/Cansiny0320/token-speed-tester/commit/02524bdb62590835f6ba12ece5b184a525410f79))
+- tidy tps histogram empty counts ([2e56a2a](https://github.com/Cansiny0320/token-speed-tester/commit/2e56a2ac173015603fbb34e772b6ee7dd29281f1))
+
+### Features
+
+- add peak tps and refine timing ([ee81d70](https://github.com/Cansiny0320/token-speed-tester/commit/ee81d70e8f16d3a6f67b4a32155bd13bd9c70c76))
+- add run separators during streaming ([49c1d25](https://github.com/Cansiny0320/token-speed-tester/commit/49c1d25fe26ef896fda6a6df2cb4d47ca6372584))
+- count tokens with tokenizer ([356a55b](https://github.com/Cansiny0320/token-speed-tester/commit/356a55bc31655b92c9a864302c7dabe6ac86c28f))
+- stream model output to terminal ([074a81e](https://github.com/Cansiny0320/token-speed-tester/commit/074a81e77dbf7f4ae48b4cbd817373fa6e9eabce))
+
 ## [1.4.2](https://github.com/Cansiny0320/token-speed-tester/compare/v1.4.1...v1.4.2) (2026-01-08)
 
 ### Bug Fixes
