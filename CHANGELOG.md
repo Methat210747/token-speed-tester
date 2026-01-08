@@ -1,3 +1,11 @@
+## [1.1.1](https://github.com/Cansiny0320/token-speed-tester/compare/v1.1.0...v1.1.1) (2026-01-08)
+
+
+### Bug Fixes
+
+* correct YAML syntax for workflow triggers ([d96c99d](https://github.com/Cansiny0320/token-speed-tester/commit/d96c99d4ae9f319c420df685a66f968d9e69247d))
+* improve workflow to trigger publish on tag push ([3a5badd](https://github.com/Cansiny0320/token-speed-tester/commit/3a5badd69c34dfb75d57889068ae13b27d977ad6))
+
 # [1.1.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.0.3...v1.1.0) (2026-01-08)
 
 
