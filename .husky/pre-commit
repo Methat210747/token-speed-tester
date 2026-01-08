@@ -1,1 +1,1 @@
-npm run typecheck && npm run lint && npm test
+npx lint-staged && npm run typecheck && npm test
