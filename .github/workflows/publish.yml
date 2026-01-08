@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   id-token: write
@@ -11,10 +14,8 @@ permissions:
 
 jobs:
   release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    outputs:
-      release-created: ${{ steps.semantic.outputs.new-release-published }}
-      version: ${{ steps.semantic.outputs.release-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,7 +46,6 @@ jobs:
         run: pnpm build
 
       - name: Run semantic-release
-        id: semantic
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -55,14 +55,11 @@ jobs:
           GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
 
   publish:
-    needs: release
-    if: needs.release.outputs.release-created == 'true'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: refs/tags/v${{ needs.release.outputs.version }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -87,3 +84,12 @@ jobs:
         run: npm publish
         env:
           NPM_CONFIG_PROVENANCE: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
