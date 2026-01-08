@@ -243,6 +243,20 @@ export function renderStatsTable(stats: StatsResult): string {
     )
   );
 
+  lines.push("├" + "─".repeat(tableWidth) + "┤");
+
+  // 峰值 TPS
+  lines.push(
+    formatStatRow(
+      "峰值 TPS",
+      stats.mean.peakTps,
+      stats.min.peakTps,
+      stats.max.peakTps,
+      stats.stdDev.peakTps,
+      "f"
+    )
+  );
+
   lines.push("└" + "─".repeat(tableWidth) + "┘");
 
   return lines.join("\n");
@@ -297,6 +311,7 @@ export function renderSingleResult(metrics: CalculatedMetrics, runIndex: number)
   lines.push(`  总 Token 数: ${metrics.totalTokens}`);
   lines.push(`  平均速度: ${metrics.averageSpeed.toFixed(2)} tokens/s`);
   lines.push(`  峰值速度: ${metrics.peakSpeed.toFixed(2)} tokens/s`);
+  lines.push(`  峰值 TPS: ${metrics.peakTps.toFixed(2)} tokens/s`);
   return lines.join("\n");
 }
 

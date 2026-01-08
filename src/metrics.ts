@@ -17,6 +17,7 @@ export interface CalculatedMetrics {
   totalTokens: number; // 总 token 数
   averageSpeed: number; // 平均速度 (tokens/s)
   peakSpeed: number; // 峰值速度 (tokens/s)
+  peakTps: number; // 峰值 TPS (tokens/s)
   tps: number[]; // 每秒 token 数 (TPS curve)
 }
 
@@ -51,6 +52,8 @@ export function calculateAverageSpeed(metrics: StreamMetrics): number {
 /**
  * 计算峰值速度 - 最快连续 N 个 token 的平均速度
  */
+const MIN_PEAK_WINDOW_MS = 50;
+
 export function calculatePeakSpeed(metrics: StreamMetrics, windowSize: number = 10): number {
   if (metrics.tokens.length < windowSize) {
     // 如果 token 数少于窗口大小，使用全部 token 计算
@@ -58,7 +61,7 @@ export function calculatePeakSpeed(metrics: StreamMetrics, windowSize: number = 
       return 0;
     }
     const totalTime = metrics.tokens[metrics.tokens.length - 1] - metrics.tokens[0];
-    return totalTime > 0 ? ((metrics.tokens.length - 1) / totalTime) * 1000 : 0;
+    return totalTime >= MIN_PEAK_WINDOW_MS ? ((metrics.tokens.length - 1) / totalTime) * 1000 : 0;
   }
 
   let maxSpeed = 0;
@@ -66,7 +69,7 @@ export function calculatePeakSpeed(metrics: StreamMetrics, windowSize: number = 
     const startTime = metrics.tokens[i];
     const endTime = metrics.tokens[i + windowSize - 1];
     const duration = endTime - startTime;
-    if (duration > 0) {
+    if (duration >= MIN_PEAK_WINDOW_MS) {
       const speed = ((windowSize - 1) / duration) * 1000;
       maxSpeed = Math.max(maxSpeed, speed);
     }
@@ -107,13 +110,15 @@ export function calculateTPS(metrics: StreamMetrics): number[] {
  * 从 StreamMetrics 计算完整的指标
  */
 export function calculateMetrics(metrics: StreamMetrics): CalculatedMetrics {
+  const tps = calculateTPS(metrics);
   return {
     ttft: calculateTTFT(metrics),
     totalTime: metrics.totalTime,
     totalTokens: metrics.totalTokens,
     averageSpeed: calculateAverageSpeed(metrics),
     peakSpeed: calculatePeakSpeed(metrics),
-    tps: calculateTPS(metrics),
+    peakTps: tps.length > 0 ? Math.max(...tps) : 0,
+    tps,
   };
 }
 
@@ -151,6 +156,7 @@ export function calculateStats(allMetrics: CalculatedMetrics[]): StatsResult {
   const totalTokens = allMetrics.map((m) => m.totalTokens);
   const averageSpeeds = allMetrics.map((m) => m.averageSpeed);
   const peakSpeeds = allMetrics.map((m) => m.peakSpeed);
+  const peakTpsValues = allMetrics.map((m) => m.peakTps);
 
   // 找到最长的 TPS 数组
   const maxTpsLength = Math.max(...allMetrics.map((m) => m.tps.length));
@@ -167,6 +173,7 @@ export function calculateStats(allMetrics: CalculatedMetrics[]): StatsResult {
       totalTokens: mean(totalTokens),
       averageSpeed: mean(averageSpeeds),
       peakSpeed: mean(peakSpeeds),
+      peakTps: mean(peakTpsValues),
       tps: avgTps,
     },
     min: {
@@ -175,6 +182,7 @@ export function calculateStats(allMetrics: CalculatedMetrics[]): StatsResult {
       totalTokens: Math.min(...totalTokens),
       averageSpeed: Math.min(...averageSpeeds),
       peakSpeed: Math.min(...peakSpeeds),
+      peakTps: Math.min(...peakTpsValues),
       tps: [],
     },
     max: {
@@ -183,6 +191,7 @@ export function calculateStats(allMetrics: CalculatedMetrics[]): StatsResult {
       totalTokens: Math.max(...totalTokens),
       averageSpeed: Math.max(...averageSpeeds),
       peakSpeed: Math.max(...peakSpeeds),
+      peakTps: Math.max(...peakTpsValues),
       tps: [],
     },
     stdDev: {
@@ -191,6 +200,7 @@ export function calculateStats(allMetrics: CalculatedMetrics[]): StatsResult {
       totalTokens: standardDeviation(totalTokens),
       averageSpeed: standardDeviation(averageSpeeds),
       peakSpeed: standardDeviation(peakSpeeds),
+      peakTps: standardDeviation(peakTpsValues),
       tps: [],
     },
     sampleSize,

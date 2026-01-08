@@ -1,3 +1,4 @@
+import { performance } from "node:perf_hooks";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import type { Config } from "./config.js";
@@ -8,7 +9,7 @@ import { createTokenizer } from "./tokenizer.js";
  * 执行 Anthropic API 流式测试
  */
 export async function anthropicStreamTest(config: Config): Promise<StreamMetrics> {
-  const startTime = Date.now();
+  const startTime = performance.now();
   const tokenTimes: number[] = [];
   let ttft = 0;
   let firstTokenRecorded = false;
@@ -31,7 +32,7 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
     });
 
     for await (const event of stream) {
-      const currentTime = Date.now();
+      const currentTime = performance.now();
 
       if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
         const text = event.delta.text;
@@ -71,7 +72,7 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
     encoding.free();
   }
 
-  const endTime = Date.now();
+  const endTime = performance.now();
   const totalTime = endTime - startTime;
 
   return {
@@ -86,7 +87,7 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
  * 执行 OpenAI API 流式测试
  */
 export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
-  const startTime = Date.now();
+  const startTime = performance.now();
   const tokenTimes: number[] = [];
   let ttft = 0;
   let firstTokenRecorded = false;
@@ -109,7 +110,7 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
     });
 
     for await (const chunk of stream) {
-      const currentTime = Date.now();
+      const currentTime = performance.now();
 
       const delta = chunk.choices[0]?.delta;
 
@@ -151,7 +152,7 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
     encoding.free();
   }
 
-  const endTime = Date.now();
+  const endTime = performance.now();
   const totalTime = endTime - startTime;
 
   return {

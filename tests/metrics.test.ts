@@ -204,6 +204,7 @@ describe("metrics", () => {
       expect(result.totalTokens).toBe(5);
       expect(result.averageSpeed).toBe(10); // 5 / 0.5 = 10
       expect(result.peakSpeed).toBeGreaterThan(0);
+      expect(result.peakTps).toBe(5);
       expect(result.tps).toEqual([5]);
     });
 
@@ -221,6 +222,7 @@ describe("metrics", () => {
       expect(result.totalTokens).toBe(0);
       expect(result.averageSpeed).toBe(0);
       expect(result.peakSpeed).toBe(0);
+      expect(result.peakTps).toBe(0);
       expect(result.tps).toEqual([]);
     });
   });
@@ -234,6 +236,7 @@ describe("metrics", () => {
           totalTokens: 50,
           averageSpeed: 50,
           peakSpeed: 60,
+          peakTps: 20,
           tps: [10, 10, 10, 10, 10],
         },
         {
@@ -242,6 +245,7 @@ describe("metrics", () => {
           totalTokens: 100,
           averageSpeed: 50,
           peakSpeed: 70,
+          peakTps: 30,
           tps: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
         },
         {
@@ -250,6 +254,7 @@ describe("metrics", () => {
           totalTokens: 75,
           averageSpeed: 50,
           peakSpeed: 65,
+          peakTps: 25,
           tps: [15, 15, 15, 15, 15, 15, 15],
         },
       ];
@@ -279,6 +284,7 @@ describe("metrics", () => {
           totalTokens: 50,
           averageSpeed: 50,
           peakSpeed: 60,
+          peakTps: 20,
           tps: [10, 10, 10],
         },
       ];
@@ -304,6 +310,7 @@ describe("metrics", () => {
           totalTokens: 10,
           averageSpeed: 10,
           peakSpeed: 20,
+          peakTps: 5,
           tps: [5, 5],
         },
         {
@@ -312,6 +319,7 @@ describe("metrics", () => {
           totalTokens: 15,
           averageSpeed: 15,
           peakSpeed: 25,
+          peakTps: 8,
           tps: [7, 7, 8],
         },
       ];
@@ -330,6 +338,7 @@ describe("metrics", () => {
           totalTokens: 50,
           averageSpeed: 50,
           peakSpeed: 60,
+          peakTps: 20,
           tps: [],
         },
         {
@@ -338,6 +347,7 @@ describe("metrics", () => {
           totalTokens: 100,
           averageSpeed: 50,
           peakSpeed: 70,
+          peakTps: 30,
           tps: [],
         },
         {
@@ -346,6 +356,7 @@ describe("metrics", () => {
           totalTokens: 150,
           averageSpeed: 50,
           peakSpeed: 80,
+          peakTps: 40,
           tps: [],
         },
       ];
