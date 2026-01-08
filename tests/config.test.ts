@@ -13,7 +13,7 @@ describe("config", () => {
 
       expect(result.provider).toBe("anthropic");
       expect(result.apiKey).toBe(VALID_API_KEY);
-      expect(result.model).toBe("claude-3-5-sonnet-20241022");
+      expect(result.model).toBe("claude-opus-4-5-20251101");
       expect(result.maxTokens).toBe(1024);
       expect(result.runCount).toBe(3);
       expect(result.prompt).toBe("写一篇关于 AI 的短文");
@@ -28,7 +28,7 @@ describe("config", () => {
 
       expect(result.provider).toBe("openai");
       expect(result.apiKey).toBe(VALID_API_KEY);
-      expect(result.model).toBe("gpt-4o-mini");
+      expect(result.model).toBe("gpt-5.2");
     });
 
     it("should use custom model when provided", () => {
@@ -214,11 +214,11 @@ describe("config", () => {
 
   describe("getDefaultModel", () => {
     it("should return default Anthropic model", () => {
-      expect(getDefaultModel("anthropic")).toBe("claude-3-5-sonnet-20241022");
+      expect(getDefaultModel("anthropic")).toBe("claude-opus-4-5-20251101");
     });
 
     it("should return default OpenAI model", () => {
-      expect(getDefaultModel("openai")).toBe("gpt-4o-mini");
+      expect(getDefaultModel("openai")).toBe("gpt-5.2");
     });
   });
 
@@ -226,7 +226,7 @@ describe("config", () => {
     const validConfig: Config = {
       provider: "anthropic",
       apiKey: VALID_API_KEY,
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-opus-4-5-20251101",
       maxTokens: 1024,
       runCount: 3,
       prompt: "Test prompt",
@@ -322,7 +322,7 @@ describe("config", () => {
       const configWithoutURL: Config = {
         provider: "anthropic",
         apiKey: VALID_API_KEY,
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-opus-4-5-20251101",
         maxTokens: 1024,
         runCount: 3,
         prompt: "Test",
@@ -335,7 +335,7 @@ describe("config", () => {
       const openaiConfig: Config = {
         provider: "openai",
         apiKey: VALID_API_KEY,
-        model: "gpt-4o-mini",
+        model: "gpt-5.2",
         maxTokens: 1024,
         runCount: 3,
         prompt: "Test",

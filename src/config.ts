@@ -21,8 +21,8 @@ export interface ParsedArgs {
 }
 
 const DEFAULT_MODELS: Record<Provider, string> = {
-  anthropic: "claude-3-5-sonnet-20241022",
-  openai: "gpt-4o-mini",
+  anthropic: "claude-opus-4-5-20251101",
+  openai: "gpt-5.2",
 };
 
 const DEFAULT_MAX_TOKENS = 1024;
