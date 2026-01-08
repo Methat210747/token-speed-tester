@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import chalk from "chalk";
 import type { Provider } from "./config.js";
@@ -7,12 +10,23 @@ import { runMultipleTests } from "./client.js";
 import { calculateMetrics, calculateStats } from "./metrics.js";
 import { renderReport, renderSingleResult } from "./chart.js";
 
+function getCliVersion(): string {
+  try {
+    const currentDir = dirname(fileURLToPath(import.meta.url));
+    const packagePath = join(currentDir, "..", "package.json");
+    const packageJson = JSON.parse(readFileSync(packagePath, "utf-8")) as { version?: string };
+    return packageJson.version ?? "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
 const program = new Command();
 
 program
   .name("token-speed-test")
   .description("A CLI tool to test LLM API token output speed")
-  .version("1.0.0");
+  .version(getCliVersion());
 
 program
   .option("-k, --api-key <key>", "API Key (required)", "")
