@@ -7,6 +7,13 @@ import {
 } from "../src/client.js";
 import type { Config } from "../src/config.js";
 
+vi.mock("../src/tokenizer.js", () => ({
+  createTokenizer: vi.fn(() => ({
+    encode: (text: string) => Array.from({ length: text.length }),
+    free: vi.fn(),
+  })),
+}));
+
 // Mock Anthropic SDK
 vi.mock("@anthropic-ai/sdk", () => ({
   default: vi.fn().mockImplementation(() => ({

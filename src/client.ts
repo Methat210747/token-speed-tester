@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import type { Config } from "./config.js";
 import type { StreamMetrics } from "./metrics.js";
+import { createTokenizer } from "./tokenizer.js";
 
 /**
  * 执行 Anthropic API 流式测试
@@ -11,7 +12,10 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
   const tokenTimes: number[] = [];
   let ttft = 0;
   let firstTokenRecorded = false;
+  let fullText = "";
+  let tokenCount = 0;
 
+  const encoding = createTokenizer(config.model);
   const client = new Anthropic({
     apiKey: config.apiKey,
     baseURL: config.baseURL,
@@ -32,14 +36,22 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
         const text = event.delta.text;
 
         if (text && text.length > 0) {
-          if (!firstTokenRecorded) {
-            ttft = currentTime - startTime;
-            firstTokenRecorded = true;
-          }
+          fullText += text;
+          const encoded = encoding.encode(fullText);
+          const newTokens = encoded.length - tokenCount;
 
-          // 记录每个字符的到达时间（作为近似的 token 时间）
-          for (let i = 0; i < text.length; i++) {
-            tokenTimes.push(currentTime - startTime);
+          if (newTokens > 0) {
+            if (!firstTokenRecorded) {
+              ttft = currentTime - startTime;
+              firstTokenRecorded = true;
+            }
+
+            // 为当前批次的新增 token 记录到达时间
+            for (let i = 0; i < newTokens; i++) {
+              tokenTimes.push(currentTime - startTime);
+            }
+
+            tokenCount = encoded.length;
           }
         }
       }
@@ -49,6 +61,8 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
       throw new Error(`Anthropic API error: ${error.message}`);
     }
     throw error;
+  } finally {
+    encoding.free();
   }
 
   const endTime = Date.now();
@@ -57,7 +71,7 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
   return {
     ttft,
     tokens: tokenTimes,
-    totalTokens: tokenTimes.length,
+    totalTokens: tokenCount,
     totalTime,
   };
 }
@@ -70,7 +84,10 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
   const tokenTimes: number[] = [];
   let ttft = 0;
   let firstTokenRecorded = false;
+  let fullText = "";
+  let tokenCount = 0;
 
+  const encoding = createTokenizer(config.model);
   const client = new OpenAI({
     apiKey: config.apiKey,
     baseURL: config.baseURL,
@@ -92,14 +109,24 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
       if (delta?.content) {
         const content = delta.content;
 
-        if (!firstTokenRecorded && content.length > 0) {
-          ttft = currentTime - startTime;
-          firstTokenRecorded = true;
-        }
+        if (content.length > 0) {
+          fullText += content;
+          const encoded = encoding.encode(fullText);
+          const newTokens = encoded.length - tokenCount;
 
-        // 记录每个字符的到达时间
-        for (let i = 0; i < content.length; i++) {
-          tokenTimes.push(currentTime - startTime);
+          if (newTokens > 0) {
+            if (!firstTokenRecorded) {
+              ttft = currentTime - startTime;
+              firstTokenRecorded = true;
+            }
+
+            // 为当前批次的新增 token 记录到达时间
+            for (let i = 0; i < newTokens; i++) {
+              tokenTimes.push(currentTime - startTime);
+            }
+
+            tokenCount = encoded.length;
+          }
         }
       }
     }
@@ -108,6 +135,8 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
       throw new Error(`OpenAI API error: ${error.message}`);
     }
     throw error;
+  } finally {
+    encoding.free();
   }
 
   const endTime = Date.now();
@@ -116,7 +145,7 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
   return {
     ttft,
     tokens: tokenTimes,
-    totalTokens: tokenTimes.length,
+    totalTokens: tokenCount,
     totalTime,
   };
 }
