@@ -1,0 +1,215 @@
+/**
+ * 单次流式测试的原始计时数据
+ */
+export interface StreamMetrics {
+  ttft: number; // Time to First Token (ms)
+  tokens: number[]; // 每个 token 的到达时间（相对开始时间，单位：ms）
+  totalTokens: number;
+  totalTime: number;
+}
+
+/**
+ * 计算后的统计指标
+ */
+export interface CalculatedMetrics {
+  ttft: number; // Time to First Token (ms)
+  totalTime: number; // 总耗时 (ms)
+  totalTokens: number; // 总 token 数
+  averageSpeed: number; // 平均速度 (tokens/s)
+  peakSpeed: number; // 峰值速度 (tokens/s)
+  tps: number[]; // 每秒 token 数 (TPS curve)
+}
+
+/**
+ * 多次测试的统计结果
+ */
+export interface StatsResult {
+  mean: CalculatedMetrics;
+  min: CalculatedMetrics;
+  max: CalculatedMetrics;
+  stdDev: CalculatedMetrics;
+  sampleSize: number;
+}
+
+/**
+ * 计算 TTFT (Time to First Token)
+ */
+export function calculateTTFT(metrics: StreamMetrics): number {
+  return metrics.ttft;
+}
+
+/**
+ * 计算平均速度 (tokens/s)
+ */
+export function calculateAverageSpeed(metrics: StreamMetrics): number {
+  if (metrics.totalTime <= 0) {
+    return 0;
+  }
+  return (metrics.totalTokens / metrics.totalTime) * 1000;
+}
+
+/**
+ * 计算峰值速度 - 最快连续 N 个 token 的平均速度
+ */
+export function calculatePeakSpeed(metrics: StreamMetrics, windowSize: number = 10): number {
+  if (metrics.tokens.length < windowSize) {
+    // 如果 token 数少于窗口大小，使用全部 token 计算
+    if (metrics.tokens.length < 2) {
+      return 0;
+    }
+    const totalTime = metrics.tokens[metrics.tokens.length - 1] - metrics.tokens[0];
+    return totalTime > 0 ? ((metrics.tokens.length - 1) / totalTime) * 1000 : 0;
+  }
+
+  let maxSpeed = 0;
+  for (let i = 0; i <= metrics.tokens.length - windowSize; i++) {
+    const startTime = metrics.tokens[i];
+    const endTime = metrics.tokens[i + windowSize - 1];
+    const duration = endTime - startTime;
+    if (duration > 0) {
+      const speed = ((windowSize - 1) / duration) * 1000;
+      maxSpeed = Math.max(maxSpeed, speed);
+    }
+  }
+
+  return maxSpeed;
+}
+
+/**
+ * 计算 TPS (Tokens Per Second) 曲线
+ */
+export function calculateTPS(metrics: StreamMetrics): number[] {
+  if (metrics.tokens.length === 0) {
+    return [];
+  }
+
+  const totalDuration = metrics.tokens[metrics.tokens.length - 1];
+  const totalSeconds = Math.ceil(totalDuration / 1000);
+
+  if (totalSeconds <= 0) {
+    return metrics.tokens.length > 0 ? [metrics.tokens.length] : [];
+  }
+
+  const tps: number[] = new Array(totalSeconds).fill(0);
+
+  // 计算每秒内的 token 数
+  for (const tokenTime of metrics.tokens) {
+    const secondIndex = Math.floor(tokenTime / 1000);
+    if (secondIndex < tps.length) {
+      tps[secondIndex]++;
+    }
+  }
+
+  return tps;
+}
+
+/**
+ * 从 StreamMetrics 计算完整的指标
+ */
+export function calculateMetrics(metrics: StreamMetrics): CalculatedMetrics {
+  return {
+    ttft: calculateTTFT(metrics),
+    totalTime: metrics.totalTime,
+    totalTokens: metrics.totalTokens,
+    averageSpeed: calculateAverageSpeed(metrics),
+    peakSpeed: calculatePeakSpeed(metrics),
+    tps: calculateTPS(metrics),
+  };
+}
+
+/**
+ * 计算一组数值的平均值
+ */
+function mean(values: number[]): number {
+  if (values.length === 0) return 0;
+  return values.reduce((sum, v) => sum + v, 0) / values.length;
+}
+
+/**
+ * 计算一组数值的标准差
+ */
+function standardDeviation(values: number[]): number {
+  if (values.length < 2) return 0;
+  const avg = mean(values);
+  const squareDiffs = values.map((v) => Math.pow(v - avg, 2));
+  return Math.sqrt(mean(squareDiffs));
+}
+
+/**
+ * 从多个 CalculatedMetrics 计算统计结果
+ */
+export function calculateStats(allMetrics: CalculatedMetrics[]): StatsResult {
+  if (allMetrics.length === 0) {
+    throw new Error("Cannot calculate stats from empty metrics array");
+  }
+
+  const sampleSize = allMetrics.length;
+
+  // 提取各项指标的数组
+  const ttfts = allMetrics.map((m) => m.ttft);
+  const totalTimes = allMetrics.map((m) => m.totalTime);
+  const totalTokens = allMetrics.map((m) => m.totalTokens);
+  const averageSpeeds = allMetrics.map((m) => m.averageSpeed);
+  const peakSpeeds = allMetrics.map((m) => m.peakSpeed);
+
+  // 找到最长的 TPS 数组
+  const maxTpsLength = Math.max(...allMetrics.map((m) => m.tps.length));
+  const avgTps: number[] = [];
+  for (let i = 0; i < maxTpsLength; i++) {
+    const values = allMetrics.map((m) => m.tps[i] ?? 0);
+    avgTps.push(mean(values));
+  }
+
+  return {
+    mean: {
+      ttft: mean(ttfts),
+      totalTime: mean(totalTimes),
+      totalTokens: mean(totalTokens),
+      averageSpeed: mean(averageSpeeds),
+      peakSpeed: mean(peakSpeeds),
+      tps: avgTps,
+    },
+    min: {
+      ttft: Math.min(...ttfts),
+      totalTime: Math.min(...totalTimes),
+      totalTokens: Math.min(...totalTokens),
+      averageSpeed: Math.min(...averageSpeeds),
+      peakSpeed: Math.min(...peakSpeeds),
+      tps: [],
+    },
+    max: {
+      ttft: Math.max(...ttfts),
+      totalTime: Math.max(...totalTimes),
+      totalTokens: Math.max(...totalTokens),
+      averageSpeed: Math.max(...averageSpeeds),
+      peakSpeed: Math.max(...peakSpeeds),
+      tps: [],
+    },
+    stdDev: {
+      ttft: standardDeviation(ttfts),
+      totalTime: standardDeviation(totalTimes),
+      totalTokens: standardDeviation(totalTokens),
+      averageSpeed: standardDeviation(averageSpeeds),
+      peakSpeed: standardDeviation(peakSpeeds),
+      tps: [],
+    },
+    sampleSize,
+  };
+}
+
+/**
+ * 格式化速度显示
+ */
+export function formatSpeed(tokensPerSecond: number): string {
+  return tokensPerSecond.toFixed(2);
+}
+
+/**
+ * 格式化时间显示
+ */
+export function formatTime(ms: number): string {
+  if (ms < 1000) {
+    return `${ms.toFixed(0)}ms`;
+  }
+  return `${(ms / 1000).toFixed(2)}s`;
+}
