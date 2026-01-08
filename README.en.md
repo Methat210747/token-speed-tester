@@ -18,6 +18,7 @@ A powerful command-line tool for testing token output speed of LLM APIs. Support
   - **TTFT** (Time to First Token): Latency before first token arrives
   - **Average Speed**: Mean tokens per second
   - **Peak Speed**: Fastest speed over a 10-token window
+  - **Peak TPS**: Highest tokens received within a single second
   - **TPS Curve**: Tokens received per second throughout the stream
 - **Statistical Analysis**: Mean, min, max, and standard deviation across multiple test runs
 - **ASCII Visualization**: Beautiful terminal-based charts and tables
@@ -123,12 +124,15 @@ Prompt: 写一篇关于 AI 的短文
 
 ⏳ 正在运行测试...
 
+模型输出 (流式):
+
 [运行 1]
   TTFT: 523ms
   总耗时: 3245ms
   总 Token 数: 412
   平均速度: 126.96 tokens/s
   峰值速度: 156.32 tokens/s
+  峰值 TPS: 168.00 tokens/s
 
 [运行 2]
   TTFT: 487ms
@@ -136,6 +140,7 @@ Prompt: 写一篇关于 AI 的短文
   总 Token 数: 398
   平均速度: 124.84 tokens/s
   峰值速度: 158.41 tokens/s
+  峰值 TPS: 171.00 tokens/s
 
 [运行 3]
   TTFT: 501ms
@@ -143,6 +148,7 @@ Prompt: 写一篇关于 AI 的短文
   总 Token 数: 405
   平均速度: 122.28 tokens/s
   峰值速度: 154.23 tokens/s
+  峰值 TPS: 166.00 tokens/s
 
 ======================================================================
 Token 速度测试报告
@@ -161,6 +167,8 @@ Token 速度测试报告
 │ 平均速度        │    124.69 │  122.28 │  126.96 │     1.88 │
 ├──────────────────────────────────────────────────────────────────────┤
 │ 峰值速度        │    156.32 │  154.23 │  158.41 │     1.82 │
+├──────────────────────────────────────────────────────────────────────┤
+│ 峰值 TPS         │    168.33 │  166.00 │  171.00 │     2.05 │
 └──────────────────────────────────────────────────────────────────────┘
 
 Token 速度趋势图 (TPS)
@@ -199,7 +207,10 @@ TPS 分布
 | **Total Tokens**  | Number of output tokens received                                  |
 | **Average Speed** | Mean tokens per second (totalTokens / totalTime × 1000)           |
 | **Peak Speed**    | Fastest speed measured over a sliding 10-token window             |
+| **Peak TPS**      | Highest tokens received within a single second                    |
 | **TPS Curve**     | Tokens received per second throughout the streaming response      |
+
+Note: Token counting uses the model tokenizer per stream chunk; boundary splits may cause slight differences.
 
 ## Development
 

@@ -1,17 +1,22 @@
+import { performance } from "node:perf_hooks";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import type { Config } from "./config.js";
 import type { StreamMetrics } from "./metrics.js";
+import { createTokenizer } from "./tokenizer.js";
 
 /**
  * 执行 Anthropic API 流式测试
  */
 export async function anthropicStreamTest(config: Config): Promise<StreamMetrics> {
-  const startTime = Date.now();
+  const startTime = performance.now();
   const tokenTimes: number[] = [];
   let ttft = 0;
   let firstTokenRecorded = false;
+  let tokenCount = 0;
+  let wroteOutput = false;
 
+  const encoding = createTokenizer(config.model);
   const client = new Anthropic({
     apiKey: config.apiKey,
     baseURL: config.baseURL,
@@ -26,20 +31,29 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
     });
 
     for await (const event of stream) {
-      const currentTime = Date.now();
+      const currentTime = performance.now();
 
       if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
         const text = event.delta.text;
 
         if (text && text.length > 0) {
-          if (!firstTokenRecorded) {
-            ttft = currentTime - startTime;
-            firstTokenRecorded = true;
-          }
+          process.stdout.write(text);
+          wroteOutput = true;
+          const encoded = encoding.encode(text);
+          const newTokens = encoded.length;
 
-          // 记录每个字符的到达时间（作为近似的 token 时间）
-          for (let i = 0; i < text.length; i++) {
-            tokenTimes.push(currentTime - startTime);
+          if (newTokens > 0) {
+            if (!firstTokenRecorded) {
+              ttft = currentTime - startTime;
+              firstTokenRecorded = true;
+            }
+
+            // 为当前批次的新增 token 记录到达时间
+            for (let i = 0; i < newTokens; i++) {
+              tokenTimes.push(currentTime - startTime);
+            }
+
+            tokenCount += newTokens;
           }
         }
       }
@@ -49,15 +63,20 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
       throw new Error(`Anthropic API error: ${error.message}`);
     }
     throw error;
+  } finally {
+    if (wroteOutput) {
+      process.stdout.write("\n");
+    }
+    encoding.free();
   }
 
-  const endTime = Date.now();
+  const endTime = performance.now();
   const totalTime = endTime - startTime;
 
   return {
     ttft,
     tokens: tokenTimes,
-    totalTokens: tokenTimes.length,
+    totalTokens: tokenCount,
     totalTime,
   };
 }
@@ -66,11 +85,14 @@ export async function anthropicStreamTest(config: Config): Promise<StreamMetrics
  * 执行 OpenAI API 流式测试
  */
 export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
-  const startTime = Date.now();
+  const startTime = performance.now();
   const tokenTimes: number[] = [];
   let ttft = 0;
   let firstTokenRecorded = false;
+  let tokenCount = 0;
+  let wroteOutput = false;
 
+  const encoding = createTokenizer(config.model);
   const client = new OpenAI({
     apiKey: config.apiKey,
     baseURL: config.baseURL,
@@ -85,21 +107,32 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
     });
 
     for await (const chunk of stream) {
-      const currentTime = Date.now();
+      const currentTime = performance.now();
 
       const delta = chunk.choices[0]?.delta;
 
       if (delta?.content) {
         const content = delta.content;
 
-        if (!firstTokenRecorded && content.length > 0) {
-          ttft = currentTime - startTime;
-          firstTokenRecorded = true;
-        }
+        if (content.length > 0) {
+          process.stdout.write(content);
+          wroteOutput = true;
+          const encoded = encoding.encode(content);
+          const newTokens = encoded.length;
 
-        // 记录每个字符的到达时间
-        for (let i = 0; i < content.length; i++) {
-          tokenTimes.push(currentTime - startTime);
+          if (newTokens > 0) {
+            if (!firstTokenRecorded) {
+              ttft = currentTime - startTime;
+              firstTokenRecorded = true;
+            }
+
+            // 为当前批次的新增 token 记录到达时间
+            for (let i = 0; i < newTokens; i++) {
+              tokenTimes.push(currentTime - startTime);
+            }
+
+            tokenCount += newTokens;
+          }
         }
       }
     }
@@ -108,15 +141,20 @@ export async function openaiStreamTest(config: Config): Promise<StreamMetrics> {
       throw new Error(`OpenAI API error: ${error.message}`);
     }
     throw error;
+  } finally {
+    if (wroteOutput) {
+      process.stdout.write("\n");
+    }
+    encoding.free();
   }
 
-  const endTime = Date.now();
+  const endTime = performance.now();
   const totalTime = endTime - startTime;
 
   return {
     ttft,
     tokens: tokenTimes,
-    totalTokens: tokenTimes.length,
+    totalTokens: tokenCount,
     totalTime,
   };
 }
@@ -139,6 +177,11 @@ export async function runMultipleTests(config: Config): Promise<StreamMetrics[]>
   const results: StreamMetrics[] = [];
 
   for (let i = 0; i < config.runCount; i++) {
+    if (config.runCount > 1) {
+      const label = `\n[运行 ${i + 1}/${config.runCount}]`;
+      console.log(label);
+      console.log("-".repeat(label.length - 1));
+    }
     const result = await streamTest(config);
     results.push(result);
   }

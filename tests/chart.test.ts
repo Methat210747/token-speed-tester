@@ -16,6 +16,7 @@ describe("chart", () => {
       totalTokens: 125.33,
       averageSpeed: 50.14,
       peakSpeed: 75.8,
+      peakTps: 60.25,
       tps: [10, 20, 15, 25, 30, 20, 10],
     },
     min: {
@@ -24,6 +25,7 @@ describe("chart", () => {
       totalTokens: 100,
       averageSpeed: 45,
       peakSpeed: 60,
+      peakTps: 50,
       tps: [],
     },
     max: {
@@ -32,6 +34,7 @@ describe("chart", () => {
       totalTokens: 150,
       averageSpeed: 55,
       peakSpeed: 90,
+      peakTps: 80,
       tps: [],
     },
     stdDev: {
@@ -40,6 +43,7 @@ describe("chart", () => {
       totalTokens: 20.82,
       averageSpeed: 3.54,
       peakSpeed: 10.45,
+      peakTps: 8.12,
       tps: [],
     },
     sampleSize: 3,
@@ -140,6 +144,7 @@ describe("chart", () => {
       expect(result).toContain("总 Token 数");
       expect(result).toContain("平均速度");
       expect(result).toContain("峰值速度");
+      expect(result).toContain("峰值 TPS");
     });
 
     it("should include mean, min, max, and stdDev columns", () => {
@@ -190,6 +195,7 @@ describe("chart", () => {
         totalTokens: 125,
         averageSpeed: 50.03,
         peakSpeed: 75.8,
+        peakTps: 60.25,
         tps: [10, 15, 20],
       };
       const result = renderSingleResult(metrics, 0);
@@ -200,6 +206,7 @@ describe("chart", () => {
       expect(result).toContain("125"); // 总 Token 数
       expect(result).toContain("50.03"); // 平均速度
       expect(result).toContain("75.8"); // 峰值速度
+      expect(result).toContain("60.25"); // 峰值 TPS
     });
 
     it("should show correct run index", () => {
@@ -209,6 +216,7 @@ describe("chart", () => {
         totalTokens: 50,
         averageSpeed: 50,
         peakSpeed: 60,
+        peakTps: 55,
         tps: [],
       };
       const result1 = renderSingleResult(metrics, 0);
@@ -225,6 +233,7 @@ describe("chart", () => {
         totalTokens: 100,
         averageSpeed: 50,
         peakSpeed: 75,
+        peakTps: 70,
         tps: [],
       };
       const result = renderSingleResult(metrics, 0);
@@ -240,6 +249,7 @@ describe("chart", () => {
         totalTokens: 100,
         averageSpeed: 42.65,
         peakSpeed: 78.9,
+        peakTps: 66.6,
         tps: [],
       };
       const result = renderSingleResult(metrics, 0);
@@ -321,6 +331,7 @@ describe("chart", () => {
           totalTokens: 0,
           averageSpeed: 0,
           peakSpeed: 0,
+          peakTps: 0,
           tps: [],
         },
         min: {
@@ -329,6 +340,7 @@ describe("chart", () => {
           totalTokens: 0,
           averageSpeed: 0,
           peakSpeed: 0,
+          peakTps: 0,
           tps: [],
         },
         max: {
@@ -337,6 +349,7 @@ describe("chart", () => {
           totalTokens: 0,
           averageSpeed: 0,
           peakSpeed: 0,
+          peakTps: 0,
           tps: [],
         },
         stdDev: {
@@ -345,6 +358,7 @@ describe("chart", () => {
           totalTokens: 0,
           averageSpeed: 0,
           peakSpeed: 0,
+          peakTps: 0,
           tps: [],
         },
         sampleSize: 1,
@@ -361,6 +375,7 @@ describe("chart", () => {
           totalTokens: 10000,
           averageSpeed: 200,
           peakSpeed: 500,
+          peakTps: 350,
           tps: [],
         },
         min: {
@@ -369,6 +384,7 @@ describe("chart", () => {
           totalTokens: 8000,
           averageSpeed: 180,
           peakSpeed: 450,
+          peakTps: 300,
           tps: [],
         },
         max: {
@@ -377,6 +393,7 @@ describe("chart", () => {
           totalTokens: 12000,
           averageSpeed: 220,
           peakSpeed: 550,
+          peakTps: 400,
           tps: [],
         },
         stdDev: {
@@ -385,6 +402,7 @@ describe("chart", () => {
           totalTokens: 1154.7,
           averageSpeed: 14.14,
           peakSpeed: 35.36,
+          peakTps: 25.12,
           tps: [],
         },
         sampleSize: 3,

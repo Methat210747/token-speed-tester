@@ -1,8 +1,28 @@
+import stringWidth from "string-width";
 import type { CalculatedMetrics, StatsResult } from "./metrics.js";
 
 const BLOCK_CHAR = "█";
 const CHART_WIDTH = 50;
 const CHART_HEIGHT = 10;
+const STAT_LABEL_WIDTH = 15;
+const STAT_VALUE_WIDTH = 10;
+const Y_LABEL_WIDTH = 4;
+
+function padEndWidth(text: string, width: number): string {
+  const currentWidth = stringWidth(text);
+  if (currentWidth >= width) {
+    return text;
+  }
+  return text + " ".repeat(width - currentWidth);
+}
+
+function padStartWidth(text: string, width: number): string {
+  const currentWidth = stringWidth(text);
+  if (currentWidth >= width) {
+    return text;
+  }
+  return " ".repeat(width - currentWidth) + text;
+}
 
 /**
  * 渲染速度趋势图
@@ -15,41 +35,52 @@ export function renderSpeedChart(tps: number[], maxSpeed?: number): string {
   const actualMax = maxSpeed ?? Math.max(...tps, 1);
   const maxVal = Math.max(actualMax, 1);
 
+  const buildRow = (label: string, bars: string) =>
+    `│ ${padStartWidth(label, Y_LABEL_WIDTH)} ┤${bars} │`;
+  const emptyRow = buildRow("0", " ".repeat(CHART_WIDTH));
+  const chartWidth = stringWidth(emptyRow) - 2;
+  const axisPrefix = `│ ${padStartWidth("", Y_LABEL_WIDTH)} ┼`;
+
   const lines: string[] = [];
   lines.push("Token 速度趋势图 (TPS)");
 
   // Y 轴标签和边框
-  lines.push("┌" + "─".repeat(CHART_WIDTH) + "┐");
+  lines.push("┌" + "─".repeat(chartWidth) + "┐");
 
   for (let row = CHART_HEIGHT - 1; row >= 0; row--) {
     const value = (row / (CHART_HEIGHT - 1)) * maxVal;
-    const label = value.toFixed(0).padStart(4);
+    const label = value.toFixed(0);
 
-    let chartRow = "│ " + label + " ┤";
-
+    let bars = "";
     for (let col = 0; col < CHART_WIDTH; col++) {
       const index = Math.floor((col / CHART_WIDTH) * tps.length);
       const tpsValue = tps[index] ?? 0;
       const normalizedHeight = (tpsValue / maxVal) * (CHART_HEIGHT - 1);
-
-      if (normalizedHeight >= row) {
-        chartRow += BLOCK_CHAR;
-      } else {
-        chartRow += " ";
-      }
+      bars += normalizedHeight >= row ? BLOCK_CHAR : " ";
     }
 
-    chartRow += " │";
-    lines.push(chartRow);
+    lines.push(buildRow(label, bars));
   }
 
   // X 轴
-  lines.push("│   " + "0".padStart(CHART_WIDTH) + "s │");
-  lines.push("└" + "─".repeat(CHART_WIDTH) + "┘");
+  lines.push(`${axisPrefix}${"─".repeat(CHART_WIDTH)} │`);
+  lines.push("└" + "─".repeat(chartWidth) + "┘");
 
   // X 轴标签 (时间标记)
   const xLabels = generateXLabels(tps.length, 6);
-  lines.push("    " + xLabels.join(" "));
+  const labelLine = new Array(CHART_WIDTH).fill(" ");
+  const maxIndex = Math.max(tps.length - 1, 1);
+  for (const label of xLabels) {
+    const seconds = parseInt(label.replace("s", ""), 10);
+    const position = Math.min(
+      CHART_WIDTH - 1,
+      Math.round((seconds / maxIndex) * (CHART_WIDTH - 1))
+    );
+    for (let i = 0; i < label.length && position + i < CHART_WIDTH; i++) {
+      labelLine[position + i] = label[i];
+    }
+  }
+  lines.push(" ".repeat(stringWidth(axisPrefix)) + labelLine.join(""));
 
   return lines.join("\n");
 }
@@ -101,14 +132,21 @@ export function renderTPSHistogram(tps: number[]): string {
 
   const maxCount = Math.max(...histogram, 1);
 
-  for (let i = 0; i < buckets; i++) {
+  const labels = histogram.map((_, i) => {
     const bucketStart = (i * bucketSize).toFixed(1);
     const bucketEnd = ((i + 1) * bucketSize).toFixed(1);
+    return `${bucketStart}-${bucketEnd}`;
+  });
+  const labelWidth = Math.max(...labels.map((l) => stringWidth(l)));
+
+  for (let i = 0; i < buckets; i++) {
+    const label = padEndWidth(labels[i], labelWidth);
     const count = histogram[i];
     const barLength = Math.round((count / maxCount) * CHART_WIDTH);
     const bar = BLOCK_CHAR.repeat(barLength);
 
-    lines.push(`${bucketStart}-${bucketEnd} │${bar} ${count}`);
+    const countSuffix = count > 0 ? ` ${count}` : "";
+    lines.push(`${label} │${bar}${countSuffix}`);
   }
 
   return lines.join("\n");
@@ -121,23 +159,25 @@ export function renderStatsTable(stats: StatsResult): string {
   const lines: string[] = [];
   lines.push("");
   lines.push("统计汇总 (N=" + stats.sampleSize + ")");
-  lines.push("┌" + "─".repeat(70) + "┐");
 
   // 表头
-  lines.push(
+  const headerRow =
     "│ " +
-      "指标".padEnd(15) +
-      " │ " +
-      "均值".padStart(10) +
-      " │ " +
-      "最小值".padStart(10) +
-      " │ " +
-      "最大值".padStart(10) +
-      " │ " +
-      "标准差".padStart(10) +
-      " │"
-  );
-  lines.push("├" + "─".repeat(70) + "┤");
+    padEndWidth("指标", STAT_LABEL_WIDTH) +
+    " │ " +
+    padStartWidth("均值", STAT_VALUE_WIDTH) +
+    " │ " +
+    padStartWidth("最小值", STAT_VALUE_WIDTH) +
+    " │ " +
+    padStartWidth("最大值", STAT_VALUE_WIDTH) +
+    " │ " +
+    padStartWidth("标准差", STAT_VALUE_WIDTH) +
+    " │";
+
+  const tableWidth = stringWidth(headerRow) - 2;
+  lines.push("┌" + "─".repeat(tableWidth) + "┐");
+  lines.push(headerRow);
+  lines.push("├" + "─".repeat(tableWidth) + "┤");
 
   // TTFT
   lines.push(
@@ -150,7 +190,7 @@ export function renderStatsTable(stats: StatsResult): string {
       "f"
     )
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(tableWidth) + "┤");
 
   // 总耗时
   lines.push(
@@ -163,7 +203,7 @@ export function renderStatsTable(stats: StatsResult): string {
       "f"
     )
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(tableWidth) + "┤");
 
   // 总 token 数
   lines.push(
@@ -176,7 +216,7 @@ export function renderStatsTable(stats: StatsResult): string {
       "f"
     )
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(tableWidth) + "┤");
 
   // 平均速度
   lines.push(
@@ -189,7 +229,7 @@ export function renderStatsTable(stats: StatsResult): string {
       "f"
     )
   );
-  lines.push("├" + "─".repeat(70) + "┤");
+  lines.push("├" + "─".repeat(tableWidth) + "┤");
 
   // 峰值速度
   lines.push(
@@ -203,7 +243,21 @@ export function renderStatsTable(stats: StatsResult): string {
     )
   );
 
-  lines.push("└" + "─".repeat(70) + "┘");
+  lines.push("├" + "─".repeat(tableWidth) + "┤");
+
+  // 峰值 TPS
+  lines.push(
+    formatStatRow(
+      "峰值 TPS",
+      stats.mean.peakTps,
+      stats.min.peakTps,
+      stats.max.peakTps,
+      stats.stdDev.peakTps,
+      "f"
+    )
+  );
+
+  lines.push("└" + "─".repeat(tableWidth) + "┘");
 
   return lines.join("\n");
 }
@@ -223,15 +277,15 @@ function formatStatRow(
 
   return (
     "│ " +
-    label.padEnd(15) +
+    padEndWidth(label, STAT_LABEL_WIDTH) +
     " │ " +
-    fmt(mean).padStart(10) +
+    padStartWidth(fmt(mean), STAT_VALUE_WIDTH) +
     " │ " +
-    fmt(min).padStart(10) +
+    padStartWidth(fmt(min), STAT_VALUE_WIDTH) +
     " │ " +
-    fmt(max).padStart(10) +
+    padStartWidth(fmt(max), STAT_VALUE_WIDTH) +
     " │ " +
-    fmt(stdDev).padStart(10) +
+    padStartWidth(fmt(stdDev), STAT_VALUE_WIDTH) +
     " │"
   );
 }
@@ -257,6 +311,7 @@ export function renderSingleResult(metrics: CalculatedMetrics, runIndex: number)
   lines.push(`  总 Token 数: ${metrics.totalTokens}`);
   lines.push(`  平均速度: ${metrics.averageSpeed.toFixed(2)} tokens/s`);
   lines.push(`  峰值速度: ${metrics.peakSpeed.toFixed(2)} tokens/s`);
+  lines.push(`  峰值 TPS: ${metrics.peakTps.toFixed(2)} tokens/s`);
   return lines.join("\n");
 }
 
