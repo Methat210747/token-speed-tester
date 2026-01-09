@@ -1,3 +1,9 @@
+# [1.8.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.7.0...v1.8.0) (2026-01-09)
+
+### Features
+
+- Add percentile metrics (P50, P95, P99) ([#18](https://github.com/Cansiny0320/token-speed-tester/issues/18)) ([4162be2](https://github.com/Cansiny0320/token-speed-tester/commit/4162be2b1f2f7d243cf99fca8210ad4f2a021a88)), closes [#9](https://github.com/Cansiny0320/token-speed-tester/issues/9)
+
 # [1.7.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.6.0...v1.7.0) (2026-01-09)
 
 ### Features
