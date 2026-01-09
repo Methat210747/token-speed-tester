@@ -42,7 +42,7 @@ program
   .option("-r, --runs <number>", "Number of test runs", "3")
   .option("--prompt <text>", "Test prompt")
   .option("--lang <lang>", "Output language: zh or en", "zh")
-  .option("-f, --output-format <format>", "Output format: terminal, json, csv, html", "terminal")
+  .option("-f, --output-format <format>", "Output format: terminal, json, csv, html", "html")
   .option("-o, --output <path>", "Output file path (default: report.{ext})")
   .parse(process.argv);
 

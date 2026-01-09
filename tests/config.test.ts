@@ -244,8 +244,8 @@ describe("config", () => {
         runCount: 10,
         prompt: "Write a story",
         lang: "en",
-        outputFormat: "terminal",
-        outputPath: "report",
+        outputFormat: "html",
+        outputPath: "report.html",
       });
     });
 

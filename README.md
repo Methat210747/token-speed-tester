@@ -138,7 +138,7 @@ node dist/index.js --api-key sk-ant-xxx
 | `--prompt`        |      | 测试提示词                               | "写一篇关于 AI 的短文" |
 | `--max-tokens`    |      | 最大输出 Token 数                        | `1024`                 |
 | `--lang`          |      | 输出语言: `zh` 或 `en`                   | `zh`                   |
-| `--output-format` | `-f` | 输出格式：`terminal`/`json`/`csv`/`html` | `terminal`             |
+| `--output-format` | `-f` | 输出格式：`terminal`/`json`/`csv`/`html` | `html`                 |
 | `--output`        | `-o` | 输出文件路径（默认 `report.{ext}`）      | `report.{ext}`         |
 
 ### 默认模型
