@@ -46,6 +46,14 @@ describe("chart", () => {
       peakTps: 8.12,
       tps: [],
     },
+    percentiles: {
+      ttft: { p50: 150, p95: 195, p99: 198 },
+      totalTime: { p50: 2500, p95: 2950, p99: 2990 },
+      totalTokens: { p50: 125, p95: 148, p99: 149.5 },
+      averageSpeed: { p50: 50, p95: 54, p99: 55 },
+      peakSpeed: { p50: 75, p95: 88, p99: 89 },
+      peakTps: { p50: 60, p95: 78, p99: 79 },
+    },
     sampleSize: 3,
   };
 
@@ -147,13 +155,15 @@ describe("chart", () => {
       expect(result).toContain("峰值 TPS");
     });
 
-    it("should include mean, min, max, and stdDev columns", () => {
+    it("should include mean, percentiles, min, and max columns", () => {
       const result = renderStatsTable(mockStatsResult);
 
       expect(result).toContain("均值");
+      expect(result).toContain("P50");
+      expect(result).toContain("P95");
+      expect(result).toContain("P99");
       expect(result).toContain("最小值");
       expect(result).toContain("最大值");
-      expect(result).toContain("标准差");
     });
 
     it("should format numeric values correctly", () => {
@@ -388,6 +398,14 @@ describe("chart", () => {
           peakTps: 0,
           tps: [],
         },
+        percentiles: {
+          ttft: { p50: 0, p95: 0, p99: 0 },
+          totalTime: { p50: 0, p95: 0, p99: 0 },
+          totalTokens: { p50: 0, p95: 0, p99: 0 },
+          averageSpeed: { p50: 0, p95: 0, p99: 0 },
+          peakSpeed: { p50: 0, p95: 0, p99: 0 },
+          peakTps: { p50: 0, p95: 0, p99: 0 },
+        },
         sampleSize: 1,
       };
       const result = renderStatsTable(zeroStats);
@@ -431,6 +449,14 @@ describe("chart", () => {
           peakSpeed: 35.36,
           peakTps: 25.12,
           tps: [],
+        },
+        percentiles: {
+          ttft: { p50: 5000, p95: 5800, p99: 5940 },
+          totalTime: { p50: 50000, p95: 59000, p99: 59800 },
+          totalTokens: { p50: 10000, p95: 11800, p99: 11960 },
+          averageSpeed: { p50: 200, p95: 218, p99: 222 },
+          peakSpeed: { p50: 500, p95: 545, p99: 554 },
+          peakTps: { p50: 350, p95: 395, p99: 399 },
         },
         sampleSize: 3,
       };

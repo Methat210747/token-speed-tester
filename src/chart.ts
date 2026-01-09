@@ -6,7 +6,7 @@ const BLOCK_CHAR = "█";
 const CHART_WIDTH = 50;
 const CHART_HEIGHT = 10;
 const STAT_LABEL_WIDTH = 15;
-const STAT_VALUE_WIDTH = 10;
+const STAT_VALUE_WIDTH = 8;
 const Y_LABEL_WIDTH = 4;
 
 function padEndWidth(text: string, width: number): string {
@@ -175,11 +175,15 @@ export function renderStatsTable(stats: StatsResult, lang: Lang = DEFAULT_LANG):
     " │ " +
     padStartWidth(messages.statsHeaders.mean, STAT_VALUE_WIDTH) +
     " │ " +
+    padStartWidth(messages.statsHeaders.p50, STAT_VALUE_WIDTH) +
+    " │ " +
+    padStartWidth(messages.statsHeaders.p95, STAT_VALUE_WIDTH) +
+    " │ " +
+    padStartWidth(messages.statsHeaders.p99, STAT_VALUE_WIDTH) +
+    " │ " +
     padStartWidth(messages.statsHeaders.min, STAT_VALUE_WIDTH) +
     " │ " +
     padStartWidth(messages.statsHeaders.max, STAT_VALUE_WIDTH) +
-    " │ " +
-    padStartWidth(messages.statsHeaders.stdDev, STAT_VALUE_WIDTH) +
     " │";
 
   const tableWidth = stringWidth(headerRow) - 2;
@@ -192,9 +196,11 @@ export function renderStatsTable(stats: StatsResult, lang: Lang = DEFAULT_LANG):
     formatStatRow(
       messages.statsLabels.ttft,
       stats.mean.ttft,
+      stats.percentiles.ttft.p50,
+      stats.percentiles.ttft.p95,
+      stats.percentiles.ttft.p99,
       stats.min.ttft,
       stats.max.ttft,
-      stats.stdDev.ttft,
       "f"
     )
   );
@@ -205,9 +211,11 @@ export function renderStatsTable(stats: StatsResult, lang: Lang = DEFAULT_LANG):
     formatStatRow(
       messages.statsLabels.totalTime,
       stats.mean.totalTime,
+      stats.percentiles.totalTime.p50,
+      stats.percentiles.totalTime.p95,
+      stats.percentiles.totalTime.p99,
       stats.min.totalTime,
       stats.max.totalTime,
-      stats.stdDev.totalTime,
       "f"
     )
   );
@@ -218,9 +226,11 @@ export function renderStatsTable(stats: StatsResult, lang: Lang = DEFAULT_LANG):
     formatStatRow(
       messages.statsLabels.totalTokens,
       stats.mean.totalTokens,
+      stats.percentiles.totalTokens.p50,
+      stats.percentiles.totalTokens.p95,
+      stats.percentiles.totalTokens.p99,
       stats.min.totalTokens,
       stats.max.totalTokens,
-      stats.stdDev.totalTokens,
       "f"
     )
   );
@@ -231,9 +241,11 @@ export function renderStatsTable(stats: StatsResult, lang: Lang = DEFAULT_LANG):
     formatStatRow(
       messages.statsLabels.averageSpeed,
       stats.mean.averageSpeed,
+      stats.percentiles.averageSpeed.p50,
+      stats.percentiles.averageSpeed.p95,
+      stats.percentiles.averageSpeed.p99,
       stats.min.averageSpeed,
       stats.max.averageSpeed,
-      stats.stdDev.averageSpeed,
       "f"
     )
   );
@@ -244,9 +256,11 @@ export function renderStatsTable(stats: StatsResult, lang: Lang = DEFAULT_LANG):
     formatStatRow(
       messages.statsLabels.peakSpeed,
       stats.mean.peakSpeed,
+      stats.percentiles.peakSpeed.p50,
+      stats.percentiles.peakSpeed.p95,
+      stats.percentiles.peakSpeed.p99,
       stats.min.peakSpeed,
       stats.max.peakSpeed,
-      stats.stdDev.peakSpeed,
       "f"
     )
   );
@@ -258,9 +272,11 @@ export function renderStatsTable(stats: StatsResult, lang: Lang = DEFAULT_LANG):
     formatStatRow(
       messages.statsLabels.peakTps,
       stats.mean.peakTps,
+      stats.percentiles.peakTps.p50,
+      stats.percentiles.peakTps.p95,
+      stats.percentiles.peakTps.p99,
       stats.min.peakTps,
       stats.max.peakTps,
-      stats.stdDev.peakTps,
       "f"
     )
   );
@@ -276,9 +292,11 @@ export function renderStatsTable(stats: StatsResult, lang: Lang = DEFAULT_LANG):
 function formatStatRow(
   label: string,
   mean: number,
+  p50: number,
+  p95: number,
+  p99: number,
   min: number,
   max: number,
-  stdDev: number,
   format: "f" | "d"
 ): string {
   const fmt = (n: number) => (format === "f" ? n.toFixed(2) : n.toFixed(0));
@@ -289,11 +307,15 @@ function formatStatRow(
     " │ " +
     padStartWidth(fmt(mean), STAT_VALUE_WIDTH) +
     " │ " +
+    padStartWidth(fmt(p50), STAT_VALUE_WIDTH) +
+    " │ " +
+    padStartWidth(fmt(p95), STAT_VALUE_WIDTH) +
+    " │ " +
+    padStartWidth(fmt(p99), STAT_VALUE_WIDTH) +
+    " │ " +
     padStartWidth(fmt(min), STAT_VALUE_WIDTH) +
     " │ " +
     padStartWidth(fmt(max), STAT_VALUE_WIDTH) +
-    " │ " +
-    padStartWidth(fmt(stdDev), STAT_VALUE_WIDTH) +
     " │"
   );
 }
