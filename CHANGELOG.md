@@ -1,3 +1,9 @@
+# [1.7.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.6.0...v1.7.0) (2026-01-09)
+
+### Features
+
+- Add HTML report output with SVG charts ([#3](https://github.com/Cansiny0320/token-speed-tester/issues/3)) ([d4482cd](https://github.com/Cansiny0320/token-speed-tester/commit/d4482cd5df38f3a6a3eaa697de3b97ec3593f97e))
+
 # [1.6.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.5.0...v1.6.0) (2026-01-08)
 
 ### Features
