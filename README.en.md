@@ -137,7 +137,7 @@ node dist/index.js --api-key sk-ant-xxx
 | `--prompt`        |       | Test prompt                                   | Language-specific         |
 | `--max-tokens`    |       | Maximum output tokens                         | `1024`                    |
 | `--lang`          |       | Output language: `zh` or `en`                 | `zh`                      |
-| `--output-format` | `-f`  | Output format: `terminal`/`json`/`csv`/`html` | `terminal`                |
+| `--output-format` | `-f`  | Output format: `terminal`/`json`/`csv`/`html` | `html`                    |
 | `--output`        | `-o`  | Output file path (default `report.{ext}`)     | `report.{ext}`            |
 
 Note: The default prompt follows the selected language. Use `--lang en` for the English default prompt.

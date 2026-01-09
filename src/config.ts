@@ -49,7 +49,7 @@ export function parseConfig(args: ParsedArgs): Config {
     runs = DEFAULT_RUNS,
     prompt,
     lang: langInput,
-    outputFormat = "terminal",
+    outputFormat = "html",
     outputPath,
   } = args;
   const lang = resolveLang(langInput);
