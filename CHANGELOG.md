@@ -1,3 +1,9 @@
+# [1.11.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.10.0...v1.11.0) (2026-01-11)
+
+### Features
+
+- default provider to openai ([d504562](https://github.com/Cansiny0320/token-speed-tester/commit/d50456266ad2224d662330dd52d79d750f74ea80))
+
 # [1.10.0](https://github.com/Cansiny0320/token-speed-tester/compare/v1.9.0...v1.10.0) (2026-01-09)
 
 ### Features
