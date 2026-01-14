@@ -255,21 +255,16 @@ npm run build
 
 This project publishes to npm automatically via GitHub Actions. Release process:
 
-1. Merge feature code to `master` branch
-2. Create and push version tag:
-
 ```bash
-# Patch release (bug fixes)
-git tag v1.0.1
-git push origin v1.0.1
+# 1. Use bumpp to update version and commit
+npm run release          # Interactive version selection
+# Or
+npm run release major     # Major version (2.0.0)
+npm run release minor     # Minor version (1.1.0)
+npm run release patch     # Patch version (1.0.1)
 
-# Minor release (new features)
-git tag v1.1.0
-git push origin v1.1.0
-
-# Major release (breaking changes)
-git tag v2.0.0
-git push origin v2.0.0
+# 2. Push tag to trigger release
+git push --follow-tags
 ```
 
 After pushing the tag, GitHub Actions will automatically:
