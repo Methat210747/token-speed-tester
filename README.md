@@ -287,16 +287,14 @@ npm run build
 本项目通过 GitHub Actions 自动发布到 npm。发布流程：
 
 ```bash
-# 1. 使用 bumpp 更新版本并提交
 npm run release          # 交互式选择版本类型
 # 或
-npm run release major     # 主要版本 (2.0.0)
-npm run release minor     # 次要版本 (1.1.0)
-npm run release patch     # 补丁版本 (1.0.1)
-
-# 2. 推送 tag 触发发布
-git push --follow-tags
+npm run release patch    # 补丁版本 (1.0.0 -> 1.0.1)
+npm run release minor    # 次要版本 (1.0.0 -> 1.1.0)
+npm run release major    # 主要版本 (1.0.0 -> 2.0.0)
 ```
+
+bumpp 会自动完成：更新版本 → 提交 → 打 tag → 推送
 
 推送 tag 后，GitHub Actions 会自动：
 - 构建项目

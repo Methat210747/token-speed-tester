@@ -256,16 +256,14 @@ npm run build
 This project publishes to npm automatically via GitHub Actions. Release process:
 
 ```bash
-# 1. Use bumpp to update version and commit
 npm run release          # Interactive version selection
 # Or
-npm run release major     # Major version (2.0.0)
-npm run release minor     # Minor version (1.1.0)
-npm run release patch     # Patch version (1.0.1)
-
-# 2. Push tag to trigger release
-git push --follow-tags
+npm run release patch    # Patch version (1.0.0 -> 1.0.1)
+npm run release minor    # Minor version (1.0.0 -> 1.1.0)
+npm run release major    # Major version (1.0.0 -> 2.0.0)
 ```
+
+bumpp will automatically: update version → commit → tag → push
 
 After pushing the tag, GitHub Actions will automatically:
 - Build the project
